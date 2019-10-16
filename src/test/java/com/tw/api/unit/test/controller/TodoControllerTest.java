@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
@@ -24,13 +25,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TodoControllerTest {
 
     @Autowired
+    private TodoController todoController;
+
+    @Autowired
     private MockMvc mvc;
 
     @MockBean
     private TodoRepository todoRepository;
 
     @Test
-    public void getAll() throws Exception {
+    public void todoController_getAll_should_return_all_todos() throws Exception {
         //given
         Todo todo1 = new Todo(1, "title", true, 1);
         Todo todo2 = new Todo(2, "title2", true, 2);
@@ -46,6 +50,20 @@ public class TodoControllerTest {
                 .andExpect(jsonPath("$[1].id").value(2))
                 .andExpect(jsonPath("$[0].title").value("title"))
                 .andExpect(jsonPath("$[1].title").value("title2"));
+    }
 
+    @Test
+    public void todoController_getTodo_should_return_one_todo() throws Exception {
+        //given
+        Todo todo1 = new Todo(1, "title", true, 1);
+        when(todoRepository.findById(1)).thenReturn(Optional.of(todo1));
+
+        //when
+        ResultActions result = mvc.perform(get("/todos/{todo-id}", "1"));
+
+        //then
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("title"));
     }
 }
