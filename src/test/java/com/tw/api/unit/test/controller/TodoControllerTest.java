@@ -84,7 +84,9 @@ public class TodoControllerTest {
     }
 
     @Test
-    public void todoController_deleteOneTodo_should_return_404_todo_does_not_exist() throws Exception {
+    public void todoController_deleteOneTodo_should_return_404_when_todo_does_not_exist() throws Exception {
+        when(todoRepository.findById(1)).thenReturn(Optional.empty());
+
         ResultActions resultDelete = mvc.perform(delete("/todos/{todo-id}", "1"));
 
         resultDelete.andExpect(status().isNotFound());
@@ -105,6 +107,19 @@ public class TodoControllerTest {
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.title").value("updatedTitle"));
+    }
+
+    @Test
+    public void todoController_updateTodo_should_return_404_when_todo_does_not_exist() throws Exception {
+        when(todoRepository.findById(1)).thenReturn(Optional.empty());
+        Todo updatedTodo = new Todo(1, "updatedTitle", true, 1);
+        String inputJson = mapToJson(updatedTodo);
+
+        ResultActions result = mvc.perform(patch("/todos/{todo-id}", "1")
+                .contentType(APPLICATION_JSON)
+                .content(inputJson));
+
+        result.andExpect(status().isNotFound());
     }
 
     public String mapToJson(Object obj) throws JsonProcessingException {
