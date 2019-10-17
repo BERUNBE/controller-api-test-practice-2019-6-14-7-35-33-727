@@ -122,6 +122,20 @@ public class TodoControllerTest {
         result.andExpect(status().isNotFound());
     }
 
+    @Test
+    public void todoController_updateTodo_should_return_400_when_request_payload_is_empty() throws Exception {
+        Todo oldTodo = new Todo(1, "oldtitle", true, 1);
+        when(todoRepository.findById(1)).thenReturn(Optional.of(oldTodo));
+        Todo updatedTodo = null;
+        String inputJson = mapToJson(updatedTodo);
+
+        ResultActions result = mvc.perform(patch("/todos/{todo-id}", "1")
+                .contentType(APPLICATION_JSON)
+                .content(inputJson));
+
+        result.andExpect(status().isBadRequest());
+    }
+
     public String mapToJson(Object obj) throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(obj);
     }
