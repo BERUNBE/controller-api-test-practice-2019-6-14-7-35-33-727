@@ -74,7 +74,7 @@ public class TodoControllerTest {
     }
 
     @Test
-    public void todoController_deleteOneTodo_should_update_one_todo_and_return_updated_todo() throws Exception {
+    public void todoController_deleteOneTodo_should_delete_one_existing_todo() throws Exception {
         Todo todo = new Todo(1, "title", true, 1);
         when(todoRepository.findById(1)).thenReturn(Optional.of(todo));
 
@@ -82,6 +82,14 @@ public class TodoControllerTest {
 
         resultDelete.andExpect(status().isOk());
     }
+
+    @Test
+    public void todoController_deleteOneTodo_should_return_404_todo_does_not_exist() throws Exception {
+        ResultActions resultDelete = mvc.perform(delete("/todos/{todo-id}", "1"));
+
+        resultDelete.andExpect(status().isNotFound());
+    }
+
 
     @Test
     public void todoController_updateTodo_should_update_one_todo_and_return_updated_todo() throws Exception {
